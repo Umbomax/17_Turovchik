@@ -4,6 +4,9 @@ const secondDate = document.getElementById("seconddate");
 const submitBtn = document.getElementById("submit");
 const minField = document.querySelector('.min')
 const maxField = document.querySelector('.max')
+
+const DAY_IN_MILISECONDS = 24 * 60 * 60 * 1000
+
 let firstDateValue;
 let secondDateValue;
 
@@ -36,7 +39,9 @@ dates.forEach((el) =>
 submitBtn.addEventListener("click", async() => {
   const arr = getArrayOfDates(firstDateValue, secondDateValue);
   const objOfDates = {};
-
+  firstDate.disabled = true;
+  secondDate.disabled = true;
+  submitBtn.disabled = true
   await Promise.all(arr.map((el) => fetch(`https://www.nbrb.by/api/exrates/rates/USD?parammode=2&periodicity=0&ondate=${el}`)))
   .then((res) =>{
     return Promise.all(res.map(r => r.json()))})
@@ -68,7 +73,11 @@ submitBtn.addEventListener("click", async() => {
       }
       createText(maxCur, maxField)
       createText(minCur, minField)
-      
+
+
+      firstDate.disabled = false;
+      secondDate.disabled = false;
+      submitBtn.disabled = false
   });
 
   //   //   https://www.nbrb.by/api/exrates/rates?periodicity=0&ondate=${date}
@@ -80,7 +89,7 @@ function getArrayOfDates(startDate, finishDate) {
 
   while (startDate <= finishDate) {
     arrOfDates.push(convertFromMilisecondsToDate(startDate));
-    startDate += 24 * 60 * 60 * 1000;
+    startDate += DAY_IN_MILISECONDS;
   }
   return arrOfDates;
   // let start =
@@ -96,7 +105,7 @@ function convertFromMilisecondsToDate(mSec) {
 }
 
 function createText(obj, parent){
-    let p = document.createElement('p')
+    let p = parent.querySelector('.date_value')
     p.innerHTML = `${Object.keys(obj)[0]} : ${obj[Object.keys(obj)[0]]}`
-    parent.appendChild(p)
+    
 }
